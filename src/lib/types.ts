@@ -1,11 +1,13 @@
 export type CardData = {
-  id: string | number
-  power: number
-  power_cost: number
-  coin_cost: number
+  id?: string | number
+  name?: string
+  power?: number
+  description?: string
+  power_cost?: number
+  coin_cost?: number
   cell?: number | null
-  hat?: 'white' | 'gray' | 'black'
   class?: string
   control?: boolean
+  hat?: 'white' | 'gray' | 'black'
   type?: 'unit' | 'modifier' | 'group'
 }

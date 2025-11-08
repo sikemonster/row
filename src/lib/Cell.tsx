@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Card } from './Card'
 import { CELL_WIDTH, CELL_HEIGHT } from './constants'
 
-export const Cell = ({ index, cell, onDrop, onCardDragStart }: any) => {
+export const Cell = ({ index, cell, onDrop, onCardDragStart, templateRef }: any) => {
 
   const [dragOver, setDragOver] = useState(false)
 
@@ -10,6 +10,8 @@ export const Cell = ({ index, cell, onDrop, onCardDragStart }: any) => {
     onDrop(index)
     setDragOver(false)
   }
+
+
 
 
   return (
@@ -27,7 +29,11 @@ export const Cell = ({ index, cell, onDrop, onCardDragStart }: any) => {
         background: dragOver ? "#472612" : "#65372b",
       }}>
       {cell.map((card: any, c: any) => {
-        return <Card key={`cell-${index}-card-${c}`} index={index} card={card} onDragStart={() => onCardDragStart(card, index)} />
+        return <Card
+          key={`cell-${index}-card-${c}`}
+          index={index}
+          card={card}
+          onDragStart={() => onCardDragStart(card, index)} />
       })}
 
       {cell.length > 1 && <div style={{

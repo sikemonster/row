@@ -1,10 +1,13 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import './App.css'
 import { Cell } from './lib/Cell.tsx'
 import { CELL_WIDTH, BOARD, CARD_HEIGHT, CARD_WIDTH, CELL_HEIGHT, HAND, WIDTH } from './lib/constants.ts'
 import { Hand } from './lib/Hand.tsx'
 import type { CardData } from './lib/types.ts'
 import { CircleNumber } from './lib/CircleNumber.tsx'
+import CardFull from './lib/CardTemplate.tsx'
+import Absolute from './lib/Absolute.js'
+import { createPortal } from 'react-dom'
 
 
 function App() {
@@ -16,9 +19,8 @@ function App() {
   const [row1Power, setRow1Power] = useState([0, 0])
   const [row2Power, setRow2Power] = useState([0, 0])
 
-  console.log(hand)
-
   const [dragging, setDragging] = useState<CardData | null>(null)
+  const [viewing, setViewing] = useState<CardData | null>(null)
 
 
   const removeFromHand = (card: CardData | null) => {
@@ -39,11 +41,13 @@ function App() {
 
         b[cell].splice(index, 1)
 
+        const power = card?.power ?? 0
+
         if (cell <= 6) {
-          setRow1Power(p => [p[0] - card.power, p[1] - card.power])
+          setRow1Power(p => [p[0] - power, p[1] - power])
         }
         if (cell > 6) {
-          setRow2Power(p => [p[0] - card.power, p[1] - card.power])
+          setRow2Power(p => [p[0] - power, p[1] - power])
         }
       }
       return [...b]
@@ -56,11 +60,14 @@ function App() {
     setBoard(b => {
       if (!b[cell].includes((card))) {
         b[cell].push(card)
+
+        const power = card?.power ?? 0
+
         if (cell <= 6) {
-          setRow1Power(p => [p[0] + card.power, p[1] + card.power])
+          setRow1Power(p => [p[0] + power, p[1] + power])
         }
         if (cell > 6) {
-          setRow2Power(p => [p[0] + card.power, p[1] + card.power])
+          setRow2Power(p => [p[0] + power, p[1] + power])
         }
         return [...b]
       }
@@ -126,8 +133,14 @@ function App() {
   }
 
 
+  const template = useRef<HTMLDivElement>(null)
+
+
   return (
     <>
+
+      <CardFull />
+
       {board.map((cell, index) => {
         return (
           <Cell
@@ -135,12 +148,17 @@ function App() {
             index={index}
             cell={cell}
             onCardDragStart={handleCardDragStart}
-            onDrop={handleCellDrop} />
+            onDrop={handleCellDrop}
+            templateRef={template}
+          />
+
         )
       })}
 
 
-      <Hand hand={hand} onDrop={handleHandDrop} onCardDragStart={handleCardDragStart} />
+      <Hand hand={hand} onDrop={handleHandDrop} onCardDragStart={handleCardDragStart}
+        templateRef={template}
+      />
 
       <CircleNumber value={0} x={CELL_WIDTH / 2 - 21} y={CELL_HEIGHT / 2 - 42 - 10} color='red' />
       <CircleNumber value={row1Power[1]} x={CELL_WIDTH / 2 - 21} y={CELL_HEIGHT / 2 + 10} color='blue' />
@@ -170,63 +188,6 @@ function App() {
       }}>Deck (32)</button>
 
 
-      <div style={{
-        position: 'fixed',
-        left: (WIDTH - 297) / 2,
-        top: 10,
-        width: 297,
-        height: 420,
-        background: 'white',
-        border: '1px solid black',
-        borderRadius: 3,
-        display: 'flex',
-        justifyContent: 'center'
-      }}>
-
-        <div style={{
-          height: 27,
-          backgroundImage: 'url(./bg/bg-title.png)',
-          backgroundSize: 'cover',
-          border: '1px solid black',
-          borderRadius: 3,
-          textAlign: 'center',
-          position: 'absolute',
-          top: 14,
-          left: 14, right: 14,
-          zIndex: 1
-        }}>Card Name</div>
-
-        <div style={{
-          height: 260,
-          border: '1px solid black',
-          position: 'absolute',
-          top: 10 + 27, left: 14, right: 14,
-        }} />
-
-        <div style={{
-          height: 133,
-          border: '1px solid black',
-          position: 'absolute',
-          bottom: 20, left: 14, right: 14,
-          backgroundImage: 'url(./bg/bg-title.png)',
-          backgroundSize: 'cover'
-        }} />
-
-        <div style={{
-          width: 32, height: 32,
-          borderRadius: '100%',
-          border: '1px solid black',
-          position: 'absolute',
-          bottom: 10, left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: 5,
-          background: 'white'
-
-        }}>{10}</div>
-      </div>
 
     </>
   )
