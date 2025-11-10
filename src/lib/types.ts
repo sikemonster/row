@@ -10,4 +10,10 @@ export type CardData = {
   control?: boolean
   hat?: 'white' | 'gray' | 'black'
   type?: 'unit' | 'modifier' | 'group'
+
+  artwork?: {
+    url: string,
+    size: string,
+    position: string,
+  }
 }

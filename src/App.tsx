@@ -1,27 +1,27 @@
-import { useState, useCallback, useRef } from 'react'
+import { useCallback, useState } from 'react'
 import './App.css'
+import CardHelp from './lib/CardTemplate.tsx'
 import { Cell } from './lib/Cell.tsx'
-import { CELL_WIDTH, BOARD, CARD_HEIGHT, CARD_WIDTH, CELL_HEIGHT, HAND, WIDTH } from './lib/constants.ts'
+import { CircleNumber } from './lib/CircleNumber.tsx'
+import { BOARD, CARD_HEIGHT, CARD_WIDTH, CELL_HEIGHT, CELL_WIDTH, HAND, WIDTH } from './lib/constants.ts'
 import { Hand } from './lib/Hand.tsx'
 import type { CardData } from './lib/types.ts'
-import { CircleNumber } from './lib/CircleNumber.tsx'
-import CardFull from './lib/CardTemplate.tsx'
-import Absolute from './lib/Absolute.js'
-import { createPortal } from 'react-dom'
+import { useGameState } from './context/GameState.tsx'
 
 
-function App() {
+function Game() {
+
+  const { state, } = useGameState()
 
   const [board, setBoard] = useState(BOARD)
 
   const [hand, setHand] = useState(HAND)
 
   const [row1Power, setRow1Power] = useState([0, 0])
+
   const [row2Power, setRow2Power] = useState([0, 0])
 
   const [dragging, setDragging] = useState<CardData | null>(null)
-  const [viewing, setViewing] = useState<CardData | null>(null)
-
 
   const removeFromHand = (card: CardData | null) => {
     const index = hand.indexOf(card)
@@ -133,13 +133,10 @@ function App() {
   }
 
 
-  const template = useRef<HTMLDivElement>(null)
-
-
   return (
     <>
 
-      <CardFull />
+      <CardHelp show={!!state.showCard} card={state.showCard as CardData} />
 
       {board.map((cell, index) => {
         return (
@@ -149,16 +146,13 @@ function App() {
             cell={cell}
             onCardDragStart={handleCardDragStart}
             onDrop={handleCellDrop}
-            templateRef={template}
           />
 
         )
       })}
 
 
-      <Hand hand={hand} onDrop={handleHandDrop} onCardDragStart={handleCardDragStart}
-        templateRef={template}
-      />
+      <Hand hand={hand} onDrop={handleHandDrop} onCardDragStart={handleCardDragStart} />
 
       <CircleNumber value={0} x={CELL_WIDTH / 2 - 21} y={CELL_HEIGHT / 2 - 42 - 10} color='red' />
       <CircleNumber value={row1Power[1]} x={CELL_WIDTH / 2 - 21} y={CELL_HEIGHT / 2 + 10} color='blue' />
@@ -194,4 +188,4 @@ function App() {
 }
 
 
-export default App
+export default Game

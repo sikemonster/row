@@ -17,19 +17,17 @@ type CardFullProps = {
 
 export default function CardFull(props: CardFullProps) {
 
-  const ref = useRef<HTMLDivElement>(null)
 
-  const { card, show = false, x, y, style } = props
-
-
-
+  const { card, show = false, style } = props
 
 
   return (
     <>
       <div id="card_template" className={'card'} style={{
+        position: 'fixed',
+        zIndex: 3,
         backgroundColor: '#052939',
-        zIndex: 9,
+        visibility: show ? 'visible' : 'hidden',
         ...style
       }}>
 
@@ -39,7 +37,8 @@ export default function CardFull(props: CardFullProps) {
         }}>{card?.name ?? 'Unnamed'}</div>
 
         <div className="artwork" style={{
-          height: 256
+          height: 256,
+          backgroundImage: 'none'
         }} />
 
         <div className="description" style={{
@@ -48,9 +47,9 @@ export default function CardFull(props: CardFullProps) {
           <div className="cost_class">
             <Circle>{card?.power_cost ?? 0}</Circle>
             <Circle bg={"gold"}>{card?.coin_cost ?? 0}</Circle>
-            <span className="class">{card?.["class"] ?? 'N/A'}</span>
+            <span className="class">{card?.["class"] ?? 'Unknown'}</span>
           </div>
-          {card?.description}
+          {card?.description ?? 'No description'}
         </div>
 
 
@@ -69,7 +68,7 @@ export default function CardFull(props: CardFullProps) {
           fontFamily: 'Georgia, serif',
 
 
-        }}>{10}</div>
+        }}>{card?.power ?? 0}</div>
       </div>
     </>
   )

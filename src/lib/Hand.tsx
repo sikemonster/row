@@ -51,7 +51,7 @@ export const Hand = ({ hand, onDrop, onCardDragStart }: any) => {
 
 
         return (
-          <Card key={'hand-' + index} card={card} onDragStart={onCardDragStart} style={{
+          <Card key={'card-' + card.id} card={card} onDragStart={onCardDragStart} style={{
             left: pos_x
           }} />
         )

@@ -30,7 +30,7 @@ export const Cell = ({ index, cell, onDrop, onCardDragStart, templateRef }: any)
       }}>
       {cell.map((card: any, c: any) => {
         return <Card
-          key={`cell-${index}-card-${c}`}
+          key={`card-${card.id}`}
           index={index}
           card={card}
           onDragStart={() => onCardDragStart(card, index)} />

@@ -1,48 +1,59 @@
 
-import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from 'react'
+import { useCallback, type DragEvent } from 'react'
+import { useGameState } from '../context/GameState'
 import { CircleNumber } from './CircleNumber'
 import { CARD_HEIGHT, CARD_WIDTH, CELL_HEIGHT, CELL_WIDTH } from './constants'
-import CardFull from './CardTemplate'
-import { createPortal } from 'react-dom'
 import getCardTemplate from './getCardTemplate'
 
 
 export const Card = ({ index, card, onDragStart, style, ...others }: any) => {
-  const [hovering, setHovering] = useState(false)
-  const [dragging, setDragging] = useState(false)
+  const { state, dispatch } = useGameState()
 
 
-  const handleDragStart = (event: any) => {
+  const handleDragStart = useCallback((event: any) => {
     event.stopPropagation()
     onDragStart?.(card)
-    setDragging(true)
     event.dataTransfer.effectAllowed = "move";
 
-    const $el = getCardTemplate()
-    $el.style.visibility = 'hidden'
-  }
 
-  const handleDragEnd = () => {
-    setDragging(false)
-  }
+    dispatch({
+      type: "showCard",
+      data: null
+    })
+
+  }, [card])
+
+  const handleDragEnd = useCallback((e: DragEvent) => {
+    e.preventDefault()
+
+    dispatch({
+      type: "showCard",
+      data: card
+    })
+
+  }, [card])
 
   const handleDragOver = (ev: DragEvent<HTMLDivElement>) => {
     ev.preventDefault()
     ev.dataTransfer.dropEffect = 'move'
   }
 
-  const handleMouseOver = (e: MouseEvent) => {
+  const handleMouseOver = useCallback((e: MouseEvent) => {
+    e.stopPropagation()
 
-    const $el = getCardTemplate()
-    if (!$el) return;
+    dispatch({
+      type: "showCard",
+      data: card
+    })
 
-    $el.style.visibility = 'visible'
-
-  }
+  }, [card])
 
   const handleMouseLeave = (e: MouseEvent) => {
-    const $el = getCardTemplate()
-    $el.style.visibility = 'hidden'
+    e.stopPropagation()
+    dispatch({
+      type: "showCard",
+      data: null
+    })
   }
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -60,9 +71,6 @@ export const Card = ({ index, card, onDragStart, style, ...others }: any) => {
     let y = e.clientY + 10;
     let x = e.clientX + 10;
 
-
-
-
     if ((y + eh) > h) {
       y = e.clientY - eh - 10;
     }
@@ -74,10 +82,6 @@ export const Card = ({ index, card, onDragStart, style, ...others }: any) => {
     $el.style.top = y + 'px';
   }
 
-  const handleClick = useCallback(function (e: MouseEvent) {
-
-
-  }, [])
 
   return (
     <>
@@ -99,8 +103,8 @@ export const Card = ({ index, card, onDragStart, style, ...others }: any) => {
           background: 'white',
           border: '1px solid black',
           borderRadius: 3,
-          zIndex: hovering ? 1 : 'auto',
-          cursor: hovering ? 'grab' : dragging ? 'grabbing' : 'auto',
+          zIndex: state.showCard === card ? 1 : 'auto',
+          cursor: 'grap',
           ...style
         }}
 
