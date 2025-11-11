@@ -1,24 +1,16 @@
-import { useMemo, useRef, type CSSProperties, type Ref, type StyleHTMLAttributes } from "react"
+import { useGameState } from "../context/GameState"
 import Circle from "./Circle"
-import type { CardData } from "./types"
 
 const textBg = '#f4e8bb'
 
-type CardFullProps = {
-  x?: number
-  y?: number
-  card?: CardData
-  show?: boolean
-  templateref?: Ref<HTMLDivElement>
-
-  style?: StyleHTMLAttributes<HTMLDivElement>
-}
 
 
-export default function CardFull(props: CardFullProps) {
+export default function CardFull() {
 
 
-  const { card, show = false, style } = props
+  const { state } = useGameState()
+
+  const card = state.showCard
 
 
   return (
@@ -27,8 +19,7 @@ export default function CardFull(props: CardFullProps) {
         position: 'fixed',
         zIndex: 3,
         backgroundColor: '#052939',
-        visibility: show ? 'visible' : 'hidden',
-        ...style
+        visibility: card ? 'visible' : 'hidden',
       }}>
 
         <div className={"header"} style={{

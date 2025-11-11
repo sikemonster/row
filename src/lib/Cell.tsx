@@ -1,17 +1,49 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Card } from './Card'
 import { CELL_WIDTH, CELL_HEIGHT } from './constants'
+import type { CardData } from './types'
+import { useGameState } from '../context/GameState'
 
-export const Cell = ({ index, cell, onDrop, onCardDragStart, templateRef }: any) => {
+export const Cell = ({ index }: any) => {
+
+  const { state, dispatch } = useGameState()
 
   const [dragOver, setDragOver] = useState(false)
 
-  const handleDrop = () => {
-    onDrop(index)
+  const cell = state.board[index]
+
+  const { dragging } = state
+
+
+  const handleDrop = useCallback(() => {
     setDragOver(false)
-  }
 
 
+
+
+
+
+    dispatch({
+      type: 'removeCard',
+      data: dragging
+    })
+    dispatch({
+      type: 'addCard',
+      data: {
+        card: dragging?.card,
+        location: index
+      }
+    })
+
+    dispatch({
+      type: 'setDrag'
+    })
+
+  }, [dragging, index, cell])
+
+
+
+  console.log(state.board[index])
 
 
   return (
@@ -28,12 +60,12 @@ export const Cell = ({ index, cell, onDrop, onCardDragStart, templateRef }: any)
         position: "absolute",
         background: dragOver ? "#472612" : "#65372b",
       }}>
-      {cell.map((card: any, c: any) => {
+      {cell.map((card: CardData) => {
         return <Card
           key={`card-${card.id}`}
-          index={index}
           card={card}
-          onDragStart={() => onCardDragStart(card, index)} />
+          location={index}
+        />
       })}
 
       {cell.length > 1 && <div style={{

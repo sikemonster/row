@@ -6,25 +6,33 @@ import { CARD_HEIGHT, CARD_WIDTH, CELL_HEIGHT, CELL_WIDTH } from './constants'
 import getCardTemplate from './getCardTemplate'
 
 
-export const Card = ({ index, card, onDragStart, style, ...others }: any) => {
+export const Card = ({ index, card, location, style, ...others }: any) => {
   const { state, dispatch } = useGameState()
 
 
   const handleDragStart = useCallback((event: any) => {
     event.stopPropagation()
-    onDragStart?.(card)
     event.dataTransfer.effectAllowed = "move";
 
+    dispatch({
+      type: 'setDrag',
+      data: {
+        location,
+        card,
+      }
+    })
 
     dispatch({
       type: "showCard",
       data: null
     })
 
-  }, [card])
+  }, [card, location])
 
   const handleDragEnd = useCallback((e: DragEvent) => {
     e.preventDefault()
+
+    dispatch({ type: "setDrag" })
 
     dispatch({
       type: "showCard",
@@ -56,10 +64,12 @@ export const Card = ({ index, card, onDragStart, style, ...others }: any) => {
     })
   }
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+
     const $el = getCardTemplate()
 
     if (!$el) return;
+
 
     const w = window.innerWidth
     const h = window.innerHeight
@@ -80,7 +90,7 @@ export const Card = ({ index, card, onDragStart, style, ...others }: any) => {
 
     $el.style.left = x + 'px';
     $el.style.top = y + 'px';
-  }
+  }, [])
 
 
   return (
@@ -104,7 +114,7 @@ export const Card = ({ index, card, onDragStart, style, ...others }: any) => {
           border: '1px solid black',
           borderRadius: 3,
           zIndex: state.showCard === card ? 1 : 'auto',
-          cursor: 'grap',
+          cursor: 'grab',
           ...style
         }}
 

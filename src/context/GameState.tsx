@@ -1,25 +1,41 @@
-import { createContext, useContext, useReducer, type ActionDispatch, type PropsWithChildren } from "react";
+import { act, createContext, useContext, useReducer, type ActionDispatch, type PropsWithChildren } from "react";
 import type { CardData } from "../lib/types";
 
 
 type GameState = {
-  showCard?: CardData | null,
   board: CardData[][]
   hand: CardData[]
+  deck: CardData[]
+  grave: CardData[]
+  showCard?: CardData | null,
+  dragging?: null | {
+    location: string | number,
+    card: CardData
+  }
+}
+
+
+const initialGameState: GameState = {
+  board: [
+    [], [], [], [], [], [], [],
+    [], [], [], [], [], [], [],
+  ],
+  hand: [],
+  deck: [],
+  grave: []
+}
+
+
+for (let i = 0; i < 14; i++) {
+  initialGameState.deck[i] = {
+    id: i,
+    power: 0
+  }
 }
 
 type Action = {
   type: string,
   data?: any
-}
-
-const initialGameState: GameState = {
-  showCard: null,
-  board: [
-    [], [], [], [], [], [], [],
-    [], [], [], [], [], [], [],
-  ],
-  hand: []
 }
 
 const GameStateContext = createContext<{
@@ -56,35 +72,49 @@ function gameStateReducer(state: GameState, action: Action) {
   console.log(action.type, action.data)
 
   switch (action.type) {
-    case 'handRemove':
-      state.hand = state.hand.filter(c => c !== action.data.card)
+
+    case "draw":
+
+      const deckTop = state.deck.pop()
+
+      if (!deckTop) return state
+
+
+      state.hand = arrayAdd(state.hand, deckTop)
+
 
       return { ...state }
 
-    case 'handAdd':
-      state.hand = [
-        ...state.hand,
-        action.data.card
-      ]
+
+    case "setDrag":
+      state.dragging = action.data
 
       return { ...state }
 
 
+    case 'addCard':
+    case 'removeCard':
+      const location = action.data.location as number | "hand" | "deck" | "grave"
 
-    case 'boardRemove':
-    case 'boardAdd':
-      const cell = Number(action.data.cell)
       const card = action.data.card
 
-      if (action.type === 'boardRemove') {
-        state.board[cell] = state.board[cell].filter(c => c !== card)
+      if (action.type === 'addCard') {
+        if (typeof location === 'number') {
+          const cell = state.board[location]
+          state.board[location] = arrayAdd(cell, card)
+        }
+        else {
+          state[location] = arrayAdd(state[location], card)
+        }
       }
 
-      if (action.type === "boardAdd") {
-        state.board[cell] = [
-          ...(state.board[cell]),
-          card
-        ]
+      if (action.type === "removeCard") {
+        if (typeof location === 'number') {
+          const cell = state.board[location]
+          state.board[location] = arrayRemove(cell, card)
+        } else {
+          state[location] = arrayRemove(state[location], card)
+        }
       }
 
       state.board = [...state.board]
@@ -92,8 +122,6 @@ function gameStateReducer(state: GameState, action: Action) {
       return {
         ...state
       }
-
-
 
 
     case "showCard":
@@ -109,4 +137,13 @@ function gameStateReducer(state: GameState, action: Action) {
     }
   }
 
+}
+
+
+function arrayAdd<T = any>(arr: Array<T>, value: T) {
+  return arr.includes(value) ? arr : [...arr, value]
+}
+
+function arrayRemove<T = any>(arr: Array<T>, value: T) {
+  return arr.includes(value) ? arr.filter(v => v !== value) : arr
 }

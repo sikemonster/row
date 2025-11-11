@@ -1,8 +1,13 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card } from "./Card"
 import { CARD_WIDTH, HAND_WIDTH, CELL_WIDTH, CELL_HEIGHT } from "./constants"
+import { useGameState } from "../context/GameState"
 
-export const Hand = ({ hand, onDrop, onCardDragStart }: any) => {
+export const Hand = () => {
+
+  const { state, dispatch } = useGameState()
+
+  const { hand } = state;
 
   const [count, setCount] = useState(hand.length)
 
@@ -26,10 +31,32 @@ export const Hand = ({ hand, onDrop, onCardDragStart }: any) => {
     setCount(hand.length)
   }, [hand.length])
 
+
+  const handleDrop = useCallback(function () {
+
+    if (state.dragging?.location !== 'hand') {
+
+      dispatch({
+        type: 'removeCard',
+        data: state.dragging
+      })
+
+      dispatch({
+        type: 'addCard',
+        data: {
+          location: 'hand',
+          card: state.dragging?.card
+        }
+      })
+    }
+
+
+  }, [state.hand, state.dragging])
+
   return (
     <div
       id='hand'
-      onDrop={onDrop}
+      onDrop={handleDrop}
       onDragOver={(e) => e.preventDefault()}
       style={{
         position: 'absolute',
@@ -51,7 +78,7 @@ export const Hand = ({ hand, onDrop, onCardDragStart }: any) => {
 
 
         return (
-          <Card key={'card-' + card.id} card={card} onDragStart={onCardDragStart} style={{
+          <Card location={'hand'} key={'card-' + card.id} card={card} style={{
             left: pos_x
           }} />
         )

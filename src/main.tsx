@@ -5,9 +5,7 @@ import Game from './App.tsx'
 import { GameState } from './context/GameState.tsx'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <GameState>
-      <Game />
-    </GameState>
-  </StrictMode>,
+  <GameState>
+    <Game />
+  </GameState>
 )
